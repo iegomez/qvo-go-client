@@ -1,6 +1,9 @@
 package qvo
 
-import "time"
+import (
+	"net/url"
+	"time"
+)
 
 //Client struct to represent a qvo client object.
 type Client struct {
@@ -13,4 +16,12 @@ type Client struct {
 	Transactions         []Transaction  `json:"transactions"`
 	CreatedAt            time.Time      `json:"created_at"`
 	UpdatedAt            time.Time      `json:"updated_at"`
+}
+
+func CreateClient(conn *Conn, name, email string) (Client, QVOError) {
+
+	form := url.Values{}
+	form.Add("name", name)
+	form.Add("email", email)
+
 }
