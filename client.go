@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"strconv"
 	"strings"
@@ -87,13 +88,15 @@ func (c *Client) request(method, endpoint string, values url.Values) ([]byte, er
 		return []byte{}, errors.New("forbidden method")
 	}
 
-	//Set headers.
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	req.Header.Set("Authorization", c.getBearer())
+	req.Header.Set("authorization", c.getBearer())
 
 	//Check the request.
-	fmt.Println(req)
+	dr, err := httputil.DumpRequestOut(req, true)
+	if err != nil {
+		log.Errorf("dump error: %s", err)
+		return []byte{}, err
+	}
+	log.Debugf("\n\ndump: %s\n\n", dr)
 
 	//Post the request.
 	resp, err := client.Do(req)
@@ -101,6 +104,13 @@ func (c *Client) request(method, endpoint string, values url.Values) ([]byte, er
 		log.Errorf("error: %v\n", err)
 		return []byte{}, err
 	}
+
+	dumpResp, err := httputil.DumpResponse(resp, true)
+	if err != nil {
+		log.Errorf("resp dump error: %s", err)
+		return []byte{}, err
+	}
+	log.Debugf("\n\nresp dump: %s\n\n", dumpResp)
 
 	//read body.
 	body, bErr := ioutil.ReadAll(resp.Body)
@@ -114,7 +124,7 @@ func (c *Client) request(method, endpoint string, values url.Values) ([]byte, er
 	fmt.Printf("status: %s\nresp: %v\n", resp.Status, resp)
 
 	//If we get an error code, check the qvo standard error.
-	if resp.Status != "200 OK" {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		qvoMessage := ""
 		qvoParam := ""
 		qvoErr := qvoError{Type: "", Message: &qvoMessage, Param: &qvoParam}
@@ -126,6 +136,6 @@ func (c *Client) request(method, endpoint string, values url.Values) ([]byte, er
 		return []byte{}, errors.Errorf("QVO error\ttype: %s\tmessage: %s\tparam: %s\t\n", qvoErr.Type, *qvoErr.Message, *qvoErr.Param)
 	}
 
-	return []byte{}, nil
+	return body, nil
 
 }

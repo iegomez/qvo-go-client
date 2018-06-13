@@ -1,11 +1,14 @@
 package qvo
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 //Customer struct to represent a qvo customer object.
@@ -103,14 +106,7 @@ func DeleteCustomer(c *Client, id string) error {
 	form := url.Values{}
 	form.Add("customer_id", id)
 
-	body, err := c.request("DELETE", endpoint, form)
-	if err != nil {
-		return err
-	}
-
-	var customer Customer
-	err = json.Unmarshal(body, &customer)
-
+	_, err := c.request("DELETE", endpoint, form)
 	if err != nil {
 		return err
 	}
@@ -122,7 +118,7 @@ func DeleteCustomer(c *Client, id string) error {
 //ListCustomers retrieves a list of customers with given pages, filters and order.
 func ListCustomers(c *Client, page, perPage int, where map[string]map[string]interface{}, orderBy string) ([]Customer, error) {
 
-	var customers []Customer
+	var customers = make([]Customer, 0)
 
 	form := url.Values{}
 	if page > 0 && perPage > 0 {
@@ -133,6 +129,7 @@ func ListCustomers(c *Client, page, perPage int, where map[string]map[string]int
 	if len(where) > 0 {
 		jBytes, err := json.Marshal(where)
 		if err != nil {
+			log.Errorf("errored at where: %s", err)
 			return customers, err
 		}
 		form.Add("where", string(jBytes))
@@ -143,14 +140,19 @@ func ListCustomers(c *Client, page, perPage int, where map[string]map[string]int
 	}
 
 	body, err := c.request("GET", "customers", form)
+	log.Debugf("\n\nbody: %s\n\n", body)
 	if err != nil {
+		log.Errorf("errored at body: %s", err)
 		return customers, err
 	}
 
-	var customer Customer
-	err = json.Unmarshal(body, &customer)
+	err = json.NewDecoder(bytes.NewReader(body)).Decode(&customers)
+	//err = json.Unmarshal(body, &customers)
+
+	log.Debugf("body: %s\n%v\n", string(body), body)
 
 	if err != nil {
+		log.Errorf("errored at unmarshal: %s", err)
 		return customers, err
 	}
 
