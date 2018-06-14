@@ -79,11 +79,11 @@ func TestCustomer(t *testing.T) {
 								Convey("Filtering by email should work", func() {
 
 									where["email"] = make(map[string]interface{})
-									where["email"]["like"] = "test@manglar.cl"
+									where["email"]["like"] = "%test%"
 
 									customersLike, err := ListCustomers(c, 0, 0, where, "")
 									So(err, ShouldBeNil)
-									So(customersLike, ShouldHaveLength, 1)
+									So(customersLike, ShouldHaveLength, 2)
 
 									where["name"] = make(map[string]interface{})
 									where["name"]["="] = "Ignacio Gómez"
