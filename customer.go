@@ -147,9 +147,6 @@ func ListCustomers(c *Client, page, perPage int, where map[string]map[string]int
 	}
 
 	err = json.NewDecoder(bytes.NewReader(body)).Decode(&customers)
-	//err = json.Unmarshal(body, &customers)
-
-	//log.Debugf("body: %s\n%v\n", string(body), body)
 
 	if err != nil {
 		log.Errorf("errored at unmarshal: %s", err)

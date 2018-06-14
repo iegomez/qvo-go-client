@@ -24,6 +24,10 @@ type Client struct {
 	IsSandbox bool
 }
 
+type errorWrapper struct {
+	Error qvoError `json:"error"`
+}
+
 //qvoError implements standard qvo API errors.
 type qvoError struct {
 	Type    string  `json:"type"`
@@ -126,7 +130,8 @@ func (c *Client) request(method, endpoint string, values url.Values) ([]byte, er
 		qvoMessage := ""
 		qvoParam := ""
 		qvoErr := qvoError{Type: "", Message: &qvoMessage, Param: &qvoParam}
-		unErr := json.Unmarshal(body, &qvoErr)
+		errorWrap := errorWrapper{Error: qvoErr}
+		unErr := json.Unmarshal(body, &errorWrap)
 		if unErr != nil {
 			log.Errorf("unmarshal error: %v\n", unErr)
 			return []byte{}, unErr

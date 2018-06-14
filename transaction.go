@@ -1,10 +1,14 @@
 package qvo
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strconv"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 //GatewayResponse struct to deal with gateway response from transactions.
@@ -92,4 +96,46 @@ func RefundTransaction(c *Client, id string) (Refund, error) {
 	}
 
 	return refund, nil
+}
+
+//ListTransactions retrieves a list of transactions with given pages, filters and order.
+func ListTransactions(c *Client, page, perPage int, where map[string]map[string]interface{}, orderBy string) ([]Transaction, error) {
+
+	var transactions = make([]Transaction, 0)
+
+	form := url.Values{}
+	if page > 0 && perPage > 0 {
+		form.Add("page", strconv.Itoa(page))
+		form.Add("per_page", strconv.Itoa(perPage))
+	}
+
+	if len(where) > 0 {
+		jBytes, err := json.Marshal(where)
+		if err != nil {
+			log.Errorf("errored at where: %s", err)
+			return transactions, err
+		}
+		form.Add("where", string(jBytes))
+	}
+
+	if orderBy != "" {
+		form.Add("order_by", orderBy)
+	}
+
+	body, err := c.request("GET", "transactions", form)
+	//log.Debugf("\n\nbody: %s\n\n", body)
+	if err != nil {
+		log.Errorf("errored at body: %s", err)
+		return transactions, err
+	}
+
+	err = json.NewDecoder(bytes.NewReader(body)).Decode(&transactions)
+
+	if err != nil {
+		log.Errorf("errored at unmarshal: %s", err)
+		return transactions, err
+	}
+
+	return transactions, nil
+
 }
