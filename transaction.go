@@ -13,6 +13,23 @@ type GatewayResponse struct {
 	Message string `json:"message"`
 }
 
+//Status constants
+const (
+	Successful string = "successful"
+	Rejected   string = "rejected"
+	Unable     string = "unable_to_charge"
+	Refunded   string = "refunded"
+	Waiting    string = "waiting_for_response"
+	Timeout    string = "response?timeout"
+)
+
+//Gateway constants
+const (
+	WebpayPlus     string = "webpay_plus"
+	WebpayOneclick string = "webpay_oneclick"
+	Olpays         string = "olpays"
+)
+
 //Transaction struct to represent a qvo transaction object.
 type Transaction struct {
 	ID              string                  `json:"id"`
@@ -21,11 +38,11 @@ type Transaction struct {
 	Description     string                  `json:"description"`
 	Gateway         string                  `json:"gateway"` //One of: webpay_plus, webpay_oneclick, olpays.
 	Credits         int64                   `json:"credits"`
-	Status          string                  `json:"ststaus"` //One of: successful, rejected, unable_to_charge, refunded, waiting_for_response, response_timeout.
+	Status          string                  `json:"status"` //One of: successful, rejected, unable_to_charge, refunded, waiting_for_response, response_timeout.
 	Customer        Customer                `json:"customer"`
 	Payment         *Payment                `json:"payment"` //Nullable, so it's a pointer.
 	Refund          *Refund                 `json:"refund"`  //Nullable, so it's a pointer.
-	Transable       *map[string]interface{} //API sends a "hash", so we are limited to an interfaces map. Also, it's nullable, so it's a pointer.
+	Transable       *map[string]interface{} //API sends a "hash", so we are limited to an interfaces map. Also, it's nullable, so it's a pointer. For now, it's supposed to be a subscription.
 	GatewayResponse GatewayResponse         `json:"gateway_response"`
 	CreatedAt       time.Time               `json:"created_at"`
 	UpdatedAt       time.Time               `json:"updated_at"`
