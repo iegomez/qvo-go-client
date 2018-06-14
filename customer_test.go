@@ -54,6 +54,8 @@ func TestCustomer(t *testing.T) {
 					So(err, ShouldBeNil)
 					So(customer2.Email, ShouldResemble, "test2@manglar.cl")
 
+					log.Debugf("\n\n***\n\ncreated at: %s\n\n***\n\n", customer1.CreatedAt.String())
+
 					Convey("So a customer should be retreivable and updatable", func() {
 						retrieved, err := GetCustomer(c, customer1.ID)
 						So(err, ShouldBeNil)

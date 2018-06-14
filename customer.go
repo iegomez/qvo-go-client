@@ -140,7 +140,7 @@ func ListCustomers(c *Client, page, perPage int, where map[string]map[string]int
 	}
 
 	body, err := c.request("GET", "customers", form)
-	log.Debugf("\n\nbody: %s\n\n", body)
+	//log.Debugf("\n\nbody: %s\n\n", body)
 	if err != nil {
 		log.Errorf("errored at body: %s", err)
 		return customers, err
@@ -149,7 +149,7 @@ func ListCustomers(c *Client, page, perPage int, where map[string]map[string]int
 	err = json.NewDecoder(bytes.NewReader(body)).Decode(&customers)
 	//err = json.Unmarshal(body, &customers)
 
-	log.Debugf("body: %s\n%v\n", string(body), body)
+	//log.Debugf("body: %s\n%v\n", string(body), body)
 
 	if err != nil {
 		log.Errorf("errored at unmarshal: %s", err)

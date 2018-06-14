@@ -121,8 +121,6 @@ func (c *Client) request(method, endpoint string, values url.Values) ([]byte, er
 		return []byte{}, bErr
 	}
 
-	fmt.Printf("status: %s\nresp: %v\n", resp.Status, resp)
-
 	//If we get an error code, check the qvo standard error.
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		qvoMessage := ""

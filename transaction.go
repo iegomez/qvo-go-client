@@ -1,6 +1,11 @@
 package qvo
 
-import "time"
+import (
+	"encoding/json"
+	"fmt"
+	"net/url"
+	"time"
+)
 
 //GatewayResponse struct to deal with gateway response from transactions.
 type GatewayResponse struct {
@@ -24,4 +29,50 @@ type Transaction struct {
 	GatewayResponse GatewayResponse         `json:"gateway_response"`
 	CreatedAt       time.Time               `json:"created_at"`
 	UpdatedAt       time.Time               `json:"updated_at"`
+}
+
+//GetTransaction retrieves a transaction by id.
+func GetTransaction(c *Client, id string) (Transaction, error) {
+
+	endpoint := fmt.Sprintf("transactions/%s", id)
+
+	form := url.Values{}
+	form.Add("transaction_id", id)
+
+	body, err := c.request("GET", endpoint, form)
+	if err != nil {
+		return Transaction{}, err
+	}
+
+	var transaction Transaction
+	err = json.Unmarshal(body, &transaction)
+
+	if err != nil {
+		return Transaction{}, err
+	}
+
+	return transaction, nil
+
+}
+
+//RefundTransaction makes a refund request for a given transaction id.
+func RefundTransaction(c *Client, id string) (Refund, error) {
+	endpoint := fmt.Sprintf("transactions/%s/refund", id)
+
+	form := url.Values{}
+	form.Add("transaction_id", id)
+
+	body, err := c.request("POST", endpoint, form)
+	if err != nil {
+		return Refund{}, err
+	}
+
+	var refund Refund
+	err = json.Unmarshal(body, &refund)
+
+	if err != nil {
+		return Refund{}, err
+	}
+
+	return refund, nil
 }
