@@ -68,6 +68,7 @@ func TestCustomer(t *testing.T) {
 						Convey("So we shouldn't be able to create a new customer with an existing email", func() {
 							_, err := CreateCustomer(c, "Ignacio Gómez", "test@manglar.cl")
 							So(err, ShouldNotBeNil)
+							log.Debugf("error: %s", err)
 
 							Convey("Listing them with inverse orders should render inverse lists", func() {
 

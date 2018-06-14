@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"strconv"
 	"strings"
@@ -30,7 +29,7 @@ type errorWrapper struct {
 
 //qvoError implements standard qvo API errors.
 type qvoError struct {
-	Type    string  `json:"type"`
+	Type    *string `json:"type"`
 	Message *string `json:"message"`
 	Param   *string `json:"param"`
 }
@@ -95,12 +94,12 @@ func (c *Client) request(method, endpoint string, values url.Values) ([]byte, er
 	req.Header.Set("authorization", c.getBearer())
 
 	//Check the request.
-	dr, err := httputil.DumpRequestOut(req, true)
+	/*dr, err := httputil.DumpRequestOut(req, true)
 	if err != nil {
 		log.Errorf("dump error: %s", err)
 		return []byte{}, err
 	}
-	log.Debugf("\n\ndump: %s\n\n", dr)
+	log.Debugf("\n\ndump: %s\n\n", dr)*/
 
 	//Post the request.
 	resp, err := client.Do(req)
@@ -109,12 +108,12 @@ func (c *Client) request(method, endpoint string, values url.Values) ([]byte, er
 		return []byte{}, err
 	}
 
-	dumpResp, err := httputil.DumpResponse(resp, true)
+	/*dumpResp, err := httputil.DumpResponse(resp, true)
 	if err != nil {
 		log.Errorf("resp dump error: %s", err)
 		return []byte{}, err
 	}
-	log.Debugf("\n\nresp dump: %s\n\n", dumpResp)
+	log.Debugf("\n\nresp dump: %s\n\n", dumpResp)*/
 
 	//read body.
 	body, bErr := ioutil.ReadAll(resp.Body)
@@ -129,14 +128,15 @@ func (c *Client) request(method, endpoint string, values url.Values) ([]byte, er
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		qvoMessage := ""
 		qvoParam := ""
-		qvoErr := qvoError{Type: "", Message: &qvoMessage, Param: &qvoParam}
+		typeStr := ""
+		qvoErr := qvoError{Type: &typeStr, Message: &qvoMessage, Param: &qvoParam}
 		errorWrap := errorWrapper{Error: qvoErr}
 		unErr := json.Unmarshal(body, &errorWrap)
 		if unErr != nil {
 			log.Errorf("unmarshal error: %v\n", unErr)
 			return []byte{}, unErr
 		}
-		return []byte{}, errors.Errorf("QVO error\ttype: %s\tmessage: %s\tparam: %s\t\n", qvoErr.Type, *qvoErr.Message, *qvoErr.Param)
+		return []byte{}, errors.Errorf("QVO error\ttype: %s\tmessage: %s\tparam: %s\t\n", *qvoErr.Type, *qvoErr.Message, *qvoErr.Param)
 	}
 
 	return body, nil
