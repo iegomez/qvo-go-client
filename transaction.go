@@ -11,12 +11,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-//GatewayResponse struct to deal with gateway response from transactions.
-type GatewayResponse struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
-}
-
 //Status constants
 const (
 	Successful string = "successful"
@@ -33,6 +27,12 @@ const (
 	WebpayOneclick string = "webpay_oneclick"
 	Olpays         string = "olpays"
 )
+
+//GatewayResponse struct to deal with gateway response from transactions.
+type GatewayResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
 
 //Transaction struct to represent a qvo transaction object.
 type Transaction struct {
