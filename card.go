@@ -1,10 +1,14 @@
 package qvo
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strconv"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 //Status constants
@@ -12,12 +16,6 @@ const (
 	Succeeded string = "succeeded"
 	Failed    string = "failed"
 )
-
-//CardInscriptionRequest holds a customer id and the return url.
-type CardInscriptionRequest struct {
-	CustomerID string `json:"customer_id"`
-	ReturnURL  string `json:"return_url"`
-}
 
 //CardInscriptionResponse struct holds the answer from qvo for a card inscription response.
 type CardInscriptionResponse struct {
@@ -47,13 +45,13 @@ type Card struct {
 }
 
 //CreateCardInscription begins a card inscription request. If everything's ok, it'll return an inscription uid, the redirect url to send the customer to, and the expiration date for this transaction.
-func CreateCardInscription(c *Client, customerID string, req CardInscriptionRequest) (CardInscriptionResponse, error) {
+func CreateCardInscription(c *Client, customerID, returnURL string) (CardInscriptionResponse, error) {
 
 	endpoint := fmt.Sprintf("customers/%s/cards/inscriptions", customerID)
 
 	form := url.Values{}
-	form.Add("customer_id", req.CustomerID)
-	form.Add("return_url", req.ReturnURL)
+	form.Add("customer_id", customerID)
+	form.Add("return_url", returnURL)
 
 	body, err := c.request("POST", endpoint, form)
 	if err != nil {
@@ -115,5 +113,74 @@ func GetCard(c *Client, customerID, cardID string) (Card, error) {
 	}
 
 	return card, nil
+
+}
+
+//ChargeCard creates a charge for given customer and card.
+func ChargeCard(c *Client, customerID, cardID, description string, amount int64) (Transaction, error) {
+	endpoint := fmt.Sprintf("customers/%s/cards/%s/charge", customerID, cardID)
+
+	form := url.Values{}
+	form.Add("customer_id", customerID)
+	form.Add("card_id", cardID)
+	form.Add("amount", strconv.FormatInt(amount, 10))
+	form.Add("description", description)
+
+	body, err := c.request("POST", endpoint, form)
+	if err != nil {
+		return Transaction{}, err
+	}
+
+	var transaction Transaction
+	err = json.Unmarshal(body, &transaction)
+
+	if err != nil {
+		return Transaction{}, err
+	}
+
+	return transaction, nil
+}
+
+//DeleteCard deletes a card for a given customer.
+func DeleteCard(c *Client, customerID, cardID string) error {
+
+	endpoint := fmt.Sprintf("customers/%s/cards/%s", customerID, cardID)
+
+	form := url.Values{}
+	form.Add("customer_id", customerID)
+	form.Add("card_id", cardID)
+
+	_, err := c.request("DELETE", endpoint, form)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+//ListCards retrieves cards for a given customer.
+func ListCards(c *Client, customerID string) ([]Card, error) {
+
+	var cards = make([]Card, 0)
+
+	form := url.Values{}
+	form.Add("customer_id", customerID)
+
+	body, err := c.request("GET", "customers", form)
+	//log.Debugf("\n\nbody: %s\n\n", body)
+	if err != nil {
+		log.Errorf("errored at body: %s", err)
+		return cards, err
+	}
+
+	err = json.NewDecoder(bytes.NewReader(body)).Decode(&cards)
+
+	if err != nil {
+		log.Errorf("errored at unmarshal: %s", err)
+		return cards, err
+	}
+
+	return cards, nil
 
 }
