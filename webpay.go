@@ -7,14 +7,6 @@ import (
 	"time"
 )
 
-//WebpayRequest struct holds a webpay transaction request's params.
-type WebpayRequest struct {
-	Amount      int64  `json:"amount"`
-	ReturnURL   string `json:"return_url"`
-	CustomerID  string `json:"customer_id"`
-	Description string `json:"description"`
-}
-
 //WebpayResponse struct holds the answer from qvo for a webpay transaction request.
 type WebpayResponse struct {
 	TransactionID  string    `json:"transaction_id"`
@@ -23,13 +15,13 @@ type WebpayResponse struct {
 }
 
 //WebpayTransaction begins a webpay transaction. If everything's ok, it'll return a transaction id (for later check), the redirect url to send the customer to, and the expiration date for this transaction.
-func WebpayTransaction(c *Client, req WebpayRequest) (WebpayResponse, error) {
+func WebpayTransaction(c *Client, customerID, returnURL, description string, amount int64) (WebpayResponse, error) {
 
 	form := url.Values{}
-	form.Add("amount", strconv.Itoa(int(req.Amount)))
-	form.Add("customer_id", req.CustomerID)
-	form.Add("return_url", req.ReturnURL)
-	form.Add("Description", req.Description)
+	form.Add("amount", strconv.FormatInt(amount, 10))
+	form.Add("customer_id", customerID)
+	form.Add("return_url", returnURL)
+	form.Add("Description", description)
 
 	body, err := c.request("POST", "webpay_plus/charge", form)
 	if err != nil {
