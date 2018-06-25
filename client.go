@@ -93,27 +93,12 @@ func (c *Client) request(method, endpoint string, values url.Values) ([]byte, er
 
 	req.Header.Set("authorization", c.getBearer())
 
-	//Check the request.
-	/*dr, err := httputil.DumpRequestOut(req, true)
-	if err != nil {
-		log.Errorf("dump error: %s", err)
-		return []byte{}, err
-	}
-	log.Debugf("\n\ndump: %s\n\n", dr)*/
-
 	//Post the request.
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Errorf("error: %v\n", err)
 		return []byte{}, err
 	}
-
-	/*dumpResp, err := httputil.DumpResponse(resp, true)
-	if err != nil {
-		log.Errorf("resp dump error: %s", err)
-		return []byte{}, err
-	}
-	log.Debugf("\n\nresp dump: %s\n\n", dumpResp)*/
 
 	//read body.
 	body, bErr := ioutil.ReadAll(resp.Body)
