@@ -47,7 +47,7 @@ func CreateCustomer(c *Client, name, email string) (Customer, error) {
 
 }
 
-//GetCustomer retrieves a costumer given its id.
+//GetCustomer retrieves a customer given its id.
 func GetCustomer(c *Client, id string) (Customer, error) {
 
 	endpoint := fmt.Sprintf("customers/%s", id)
