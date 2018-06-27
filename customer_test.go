@@ -10,7 +10,7 @@ import (
 func TestCustomer(t *testing.T) {
 	log.SetLevel(log.DebugLevel)
 	//Use test token and playground
-	token := "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjb21tZXJjZV9pZCI6ImNvbV9RbnB5bkhiOHJkVWRPSl82MWFoR0ZBIiwiYXBpX3Rva2VuIjp0cnVlfQ.b0DqEiqx9rwBC70kdvSfqQ3F_gVG6jFOcs5QlNWnJHk"
+	token := "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjb21tZXJjZV9pZCI6ImNvbV9NeWxDWXg1YklUbkxaUjhTcmdFbzJ3IiwiYXBpX3Rva2VuIjp0cnVlfQ.IrqOpU5fw-TtZMrKg-JkXGL4KCll-ekvqcJL4LHep8w"
 	Convey("Given valid token a client should be created", t, func() {
 		c := NewClient(token, true)
 
@@ -80,6 +80,7 @@ func TestCustomer(t *testing.T) {
 									So(customersEq, ShouldHaveLength, 1)
 
 									Convey("Finally, listing and deleting each client should work", func() {
+										where := make(map[string]map[string]interface{})
 										customers, err := ListCustomers(c, 0, 0, where, "")
 										So(err, ShouldBeNil)
 										for _, customer := range customers {

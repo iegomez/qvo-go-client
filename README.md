@@ -4,13 +4,28 @@
 
 Unofficial Go client for the QVO payment service. All objects and calls from their [REST API](https://docs.qvo.cl/) are implemented.
 
-## Tests
-
-Right now only customer tests are available as that's enough for my use case, but others will be added soon.
-
 ## Documentation
 
 The package implements everything as described on QVO's docs. Please refer to thir offical [REST API](https://docs.qvo.cl/) documentation, but also check the package's [godocs](https://godoc.org/github.com/iegomez/qvo-go-client) for more details.
+
+## Requirements
+
+This project depends on 3 Go packages:
+
+github.com/pkg/errors for better error handling.
+github.com/smartystreets/goconvey/convey for testing.
+github.com/sirupsen/logrus for logging purposes.
+
+## Tests
+
+Right now only customer and plan tests are available as that's enough for my use case, but others will be added soon.
+Plan tests are NOT passing right now, as it seems the api docs have a mistake. Hopefully it'll be fixed soon.
+
+Run the tests like this:
+
+```
+make test
+```
 
 ## Example
 
