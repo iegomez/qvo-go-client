@@ -33,7 +33,7 @@ func TestPlan(t *testing.T) {
 					testPlan1 := Plan{
 						ID:                "test-plan-1-id",
 						Name:              "Test Plan 1",
-						Price:             19990.0,
+						Price:             "19990",
 						Currency:          "CLP",
 						Interval:          "month",
 						IntervalCount:     1,
@@ -47,8 +47,8 @@ func TestPlan(t *testing.T) {
 					testPlan2 := Plan{
 						ID:                "test-plan-2-id",
 						Name:              "Test Plan 2",
-						Price:             29990.0,
-						Currency:          "CLP",
+						Price:             "29990.0",
+						Currency:          "UF",
 						Interval:          "month",
 						IntervalCount:     1,
 						TrialPeriodDays:   0,
@@ -64,9 +64,7 @@ func TestPlan(t *testing.T) {
 						So(err, ShouldBeNil)
 						So(retrieved.Name, ShouldResemble, testPlan1.Name)
 
-						retrieved.Name = "Modified plan 1"
-
-						uPlan, err := UpdatePlan(c, retrieved) //UpdateCustomer(c, customer1.ID, "Ignacio Gómez R", "test@manglar.cl", retrieved.DefaultPaymentMethod.ID)
+						uPlan, err := UpdatePlan(c, retrieved.ID, "Modified plan 1")
 						So(err, ShouldBeNil)
 						So(retrieved.CreatedAt, ShouldResemble, uPlan.CreatedAt)
 						So(uPlan.Name, ShouldResemble, "Modified plan 1")
@@ -76,8 +74,8 @@ func TestPlan(t *testing.T) {
 							testPlan3 := Plan{
 								ID:                "test-plan-1-id",
 								Name:              "Test Plan 2",
-								Price:             29990.0,
-								Currency:          "CLP",
+								Price:             "29990.0",
+								Currency:          "UF",
 								Interval:          "month",
 								IntervalCount:     1,
 								TrialPeriodDays:   0,
@@ -104,7 +102,7 @@ func TestPlan(t *testing.T) {
 
 									plansLike, err := ListPlans(c, 0, 0, where, "")
 									So(err, ShouldBeNil)
-									So(plansLike, ShouldHaveLength, 2)
+									So(plansLike, ShouldHaveLength, 1)
 
 									where["name"] = make(map[string]interface{})
 									where["name"]["="] = "Test Plan 2"

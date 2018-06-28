@@ -26,7 +26,7 @@ type Subscription struct {
 	Plan               Plan          `json:"plan"`
 	Transactions       []Transaction `json:"transactions"`
 	TaxName            string        `json:"tax_name"`
-	TaxPercent         float64       `json:"tax_percent"`
+	TaxPercent         string        `json:"tax_percent"` //A float string.
 	CreatedAt          time.Time     `json:"created_at"`
 	UpdatedAt          time.Time     `json:"updated_at"`
 }

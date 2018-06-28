@@ -48,6 +48,7 @@ func TestCustomer(t *testing.T) {
 						uCustomer, err := UpdateCustomer(c, customer1.ID, "Ignacio Gómez R", "test@manglar.cl", retrieved.DefaultPaymentMethod.ID)
 						So(err, ShouldBeNil)
 						So(retrieved.CreatedAt, ShouldResemble, uCustomer.CreatedAt)
+						So(uCustomer.Name, ShouldResemble, "Ignacio Gómez R")
 
 						Convey("So we shouldn't be able to create a new customer with an existing email", func() {
 							_, err := CreateCustomer(c, "Ignacio Gómez", "test@manglar.cl")
@@ -73,7 +74,7 @@ func TestCustomer(t *testing.T) {
 									So(customersLike, ShouldHaveLength, 2)
 
 									where["name"] = make(map[string]interface{})
-									where["name"]["="] = "Ignacio Gómez"
+									where["name"]["="] = "Ignacio Gómez R"
 
 									customersEq, err := ListCustomers(c, 0, 0, where, "")
 									So(err, ShouldBeNil)

@@ -7,5 +7,8 @@ requirements:
 test:
 	go test . -v -bench=none
 
+test-fast:
+	go test . -v -failfast -bench=none
+
 benchmark:
 	go test . -v -bench=. -run=^a

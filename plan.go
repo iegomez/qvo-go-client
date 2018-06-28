@@ -16,7 +16,7 @@ import (
 type Plan struct {
 	ID                string         `json:"id"`
 	Name              string         `json:"name"`
-	Price             float64        `json:"price"`
+	Price             string         `json:"price"`    //An int or float string.
 	Currency          string         `json:"currency"` //CLP or UF.
 	Interval          string         `json:"interval"` //One of: day, week, month, year.
 	IntervalCount     int32          `json:"interval_count"`
@@ -42,7 +42,7 @@ func CreatePlan(c *Client, plan Plan) (Plan, error) {
 	form := url.Values{}
 	form.Add("id", plan.ID)
 	form.Add("name", plan.Name)
-	form.Add("price", strconv.FormatFloat(plan.Price, 'f', -1, 64))
+	form.Add("price", plan.Price)
 	form.Add("currency", plan.Currency)
 	form.Add("interval", plan.Interval)
 	form.Add("interval_count", strconv.FormatInt(int64(plan.IntervalCount), 10))
@@ -88,26 +88,24 @@ func GetPlan(c *Client, id string) (Plan, error) {
 }
 
 //UpdatePlan updates a plan given its id.
-func UpdatePlan(c *Client, plan Plan) (Plan, error) {
+func UpdatePlan(c *Client, planID, name string) (Plan, error) {
 
-	endpoint := fmt.Sprintf("plans/%s", plan.ID)
+	endpoint := fmt.Sprintf("plans/%s", planID)
 
 	form := url.Values{}
-	form.Add("plan_id", plan.ID)
-	form.Add("name", plan.Name)
-	form.Add("price", strconv.FormatFloat(plan.Price, 'f', -1, 64))
-	form.Add("currency", plan.Currency)
-	form.Add("interval", plan.Interval)
-	form.Add("interval_count", strconv.FormatInt(int64(plan.IntervalCount), 10))
-	form.Add("trial_period_days", strconv.FormatInt(int64(plan.TrialPeriodDays), 10))
-	form.Add("default_cycle_count", strconv.FormatInt(int64(plan.DefaultCycleCount), 10))
+	form.Set("plan_id", planID)
+	form.Set("name", name)
 
 	body, err := c.request("PUT", endpoint, form)
 	if err != nil {
 		return Plan{}, err
 	}
 
+	var plan Plan
+
 	err = json.Unmarshal(body, &plan)
+
+	log.Println(plan)
 
 	if err != nil {
 		return Plan{}, err

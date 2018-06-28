@@ -80,6 +80,7 @@ func (c *Client) request(method, endpoint string, values url.Values) ([]byte, er
 			return []byte{}, reqErr
 		}
 		req.Header.Set("Content-Length", strconv.Itoa(len(values.Encode())))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	} else if method == "GET" || method == "DELETE" {
 		req, reqErr = http.NewRequest(method, uri, nil)
 		if reqErr != nil {
@@ -93,12 +94,30 @@ func (c *Client) request(method, endpoint string, values url.Values) ([]byte, er
 
 	req.Header.Set("authorization", c.getBearer())
 
+	//Uncomment to dump request.
+
+	/*dr, err := httputil.DumpRequestOut(req, true)
+	if err != nil {
+		log.Errorf("req dump error: %s", err)
+		return nil, err
+	}
+	log.Infof("\ndump req: %s\n", []byte(dr))*/
+
 	//Post the request.
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Errorf("error: %v\n", err)
 		return []byte{}, err
 	}
+
+	//Uncomment to dump response.
+
+	/*dresp, err := httputil.DumpResponse(resp, true)
+	if err != nil {
+		log.Errorf("resp dump error: %s", err)
+		return nil, err
+	}
+	log.Infof("\ndump resp: %s\n", []byte(dresp))*/
 
 	//read body.
 	body, bErr := ioutil.ReadAll(resp.Body)
