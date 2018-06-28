@@ -29,6 +29,7 @@ type Plan struct {
 }
 
 //CreatePlan creates a plan at QVOs end. Returns a copy of the plan if successful, and an error if not.
+//Price is a string as it may be an int or a float string representation DEPENDING on the currency (int for CLP, float for UF).
 func CreatePlan(c *Client, plan Plan) (Plan, error) {
 	//Validate required fields.
 	if plan.ID == "" || plan.Name == "" {

@@ -19,12 +19,38 @@ github.com/sirupsen/logrus for logging purposes.
 ## Tests
 
 Right now only customer and plan tests are available as that's enough for my use case, but others will be added soon.
-Plan tests are NOT passing right now, as it seems the api docs have a mistake. Hopefully it'll be fixed soon.
 
 Run the tests like this:
 
 ```
 make test
+```
+
+If you want tests to stop at first fail, run them like this:
+
+```
+mate test-fast
+```
+
+## Usage 
+
+After importing it, the package qvo is exposed.
+
+```go
+import "github.com/iegomez/qvo-go-client"
+```
+
+The Client expects a JWT authorization token for the API, and a sandbox/production mode bool (true for sandbox). So, given a token, you may intialize a pointer to a Client and then call any exported function passing the pointer:
+
+```go
+c := qvo.NewClient("your-api-token", true) //NewClient returns a pointer to a qvo client.
+
+var where = make(map[string]map[string]interface{}) //Create map for the filters
+where["name"] = make(map[string]interface{})
+where["name"]["like"] = "%Test%"
+
+plans, err := qvo.ListPlans(c, 0, 0, where, "") //To omit pages, perPage or order parameters, just pass Go's zero values for ints and string.
+
 ```
 
 ## Example
