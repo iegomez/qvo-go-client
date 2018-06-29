@@ -25,6 +25,12 @@ You may install them easilly by running this:
 make requirements
 ```
 
+Get the package with:
+
+```
+go get github.com/iegomez/qvo-go-client
+```
+
 ## Tests
 
 In order to test the package, you need to set the QVO_TEST_TOKEN env var with your sandbox api token. Just export the var in the terminal before running the tests, or add the export to your .profile, .bash_profile, .bash_rc, etc., depending on your system, and then source the file before running tests.
@@ -43,6 +49,8 @@ If you want tests to stop at first fail, run them like this:
 ```
 mate test-fast
 ```
+
+They run with debug log level. Just delete the line setting the level at the test files to run with info level, or set your level of preference.
 
 ## Usage 
 
