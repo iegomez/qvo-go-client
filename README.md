@@ -2,7 +2,8 @@
 
 ## Description
 
-Unofficial Go client for the QVO payment service. All objects and calls from their [REST API](https://docs.qvo.cl/) are implemented.
+Unofficial Go client for the [QVO payment service](https://www.qvo.cl/).  
+All objects and calls from their [REST API](https://docs.qvo.cl/) are implemented.
 
 ## Documentation
 
