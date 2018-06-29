@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"strconv"
 	"strings"
@@ -41,8 +42,9 @@ type Filter struct {
 	Value     interface{}
 }
 
-//NewClient initializes the api client with a token and a sandbox/production mode.
+//NewClient initializes the api client with a token and a sandbox/production mode. Default log level is info.
 func NewClient(token string, isSandbox bool) *Client {
+	log.SetLevel(log.InfoLevel)
 	return &Client{
 		Token:     token,
 		IsSandbox: isSandbox,
@@ -60,6 +62,11 @@ func (c *Client) getURI() string {
 //getBearer returns the formatted string for the authroization header.
 func (c *Client) getBearer() string {
 	return fmt.Sprintf("Bearer: %s", c.Token)
+}
+
+//SetLogLevel allows to set the log level.
+func (c *Client) SetLogLevel(logLevel log.Level) {
+	log.SetLevel(logLevel)
 }
 
 //request sends a request to the qvo API and return a json string (as a []byte) or error to the caller so it can get unmarshaled.
@@ -96,12 +103,12 @@ func (c *Client) request(method, endpoint string, values url.Values) ([]byte, er
 
 	//Uncomment to dump request.
 
-	/*dr, err := httputil.DumpRequestOut(req, true)
+	dr, err := httputil.DumpRequestOut(req, true)
 	if err != nil {
 		log.Errorf("req dump error: %s", err)
 		return nil, err
 	}
-	log.Infof("\ndump req: %s\n", []byte(dr))*/
+	log.Debugf("\ndump req: %s\n", []byte(dr))
 
 	//Post the request.
 	resp, err := client.Do(req)
@@ -140,7 +147,7 @@ func (c *Client) request(method, endpoint string, values url.Values) ([]byte, er
 			log.Errorf("unmarshal error: %v\n", unErr)
 			return []byte{}, unErr
 		}
-		return []byte{}, errors.Errorf("QVO error\ttype: %s\tmessage: %s\tparam: %s\t\n", *qvoErr.Type, *qvoErr.Message, *qvoErr.Param)
+		return []byte{}, errors.Errorf("QVO error\tstatus: %d\ttype: %s\tmessage: %s\tparam: %s\t\n", resp.StatusCode, *qvoErr.Type, *qvoErr.Message, *qvoErr.Param)
 	}
 
 	return body, nil

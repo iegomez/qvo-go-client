@@ -6,21 +6,32 @@ Unofficial Go client for the QVO payment service. All objects and calls from the
 
 ## Documentation
 
-The package implements everything as described on QVO's docs. Please refer to thir offical [REST API](https://docs.qvo.cl/) documentation, but also check the package's [godocs](https://godoc.org/github.com/iegomez/qvo-go-client) for more details.
+The package implements everything as described on QVO's docs.   
+Please refer to their offical [REST API](https://docs.qvo.cl/) documentation for information about expected parameters.  
+Also check the package's [godocs](https://godoc.org/github.com/iegomez/qvo-go-client) for details about the implementation.
 
 ## Requirements
 
 This project depends on 3 Go packages:
 
-github.com/pkg/errors for better error handling.
-github.com/smartystreets/goconvey/convey for testing.
-github.com/sirupsen/logrus for logging purposes.
+github.com/pkg/errors for better error handling.  
+github.com/smartystreets/goconvey/convey for testing.  
+github.com/sirupsen/logrus for logging.  
+
+You may install them easilly by running this:
+
+```
+make requirements
+```
 
 ## Tests
 
-Right now only customer and plan tests are available as that's enough for my use case, but others will be added soon.
+In order to test the package, you need to set the QVO_TEST_TOKEN env var with your sandbox api token. Just export the var in the terminal before running the tests, or add the export to your .profile, .bash_profile, .bash_rc, etc., depending on your system, and then source the file before running tests.
 
-Run the tests like this:
+Only customer and plan tests (and events listing in customer test) are available, as transaction, subscription, payment, withdrawal and webpay process need real card data or user actions to be tested.   
+So please file an issue for any bug you may encounter using them and I'll fix it as soon as possible.
+
+You may run the tests like this:
 
 ```
 make test
@@ -34,13 +45,13 @@ mate test-fast
 
 ## Usage 
 
-After importing it, the package qvo is exposed.
+After importing it, the package qvo is exposed:
 
 ```go
 import "github.com/iegomez/qvo-go-client"
 ```
 
-The Client expects a JWT authorization token for the API, and a sandbox/production mode bool (true for sandbox). So, given a token, you may intialize a pointer to a Client and then call any exported function passing the pointer:
+The Client expects a JWT authorization token for the API, and a sandbox/production mode bool (true for sandbox). So, using your `token`, you may intialize a pointer to a Client and then call any exported function passing the pointer:
 
 ```go
 c := qvo.NewClient("your-api-token", true) //NewClient returns a pointer to a qvo client.
@@ -51,6 +62,13 @@ where["name"]["like"] = "%Test%"
 
 plans, err := qvo.ListPlans(c, 0, 0, where, "") //To omit pages, perPage or order parameters, just pass Go's zero values for ints and string.
 
+```
+
+Client's default log level is Info, but youy may change it with the method SetLogLevel:
+
+```go
+c := qvo.NewClient("your-api-token", true) //NewClient returns a pointer to a qvo client.
+c.SetLogLevel(log.DebugLevel)
 ```
 
 ## Example
@@ -189,6 +207,24 @@ func CheckPayment(db *sqlx.DB, qc *qvo.Client, rp *redis.Pool, transactionID str
 }
 
 ```
+
+## Caveats
+
+You should be careful about some caveats with the original API:
+
+For list filters and order strings you should really check the offical docs for their syntax, as qvo errors won't mention any issue in the param field. For example, if you pass a random field name as filter, or you mistype the order (e.g., `created ASC` instead of the correct `created_at ASC`), QVO will respond with a 500 status code.
+
+The API is somewhat inconsistent with int an decimal fields. First, it allows to pass an int or a string which contains an int as the `price` field of a plan with CLP currency, but won't allow a float nor a string containing a float. Oddly enough, on creation or retrieval, it'll return a float string for the same field. So you may create a plan with price 19000 or "19000" if the currency is CLP (UF allows both ints and floats), but not 19000.0 or "19000.0", and the API will return it with "19000.0" (always a string, never 19000.0) as the `price`. I could deal with this at the client implementation, but it seems messy and I've already reported it, so hopefully it'll be addressed soon.
+
+I'll update this section if there's any change on the API.
+
+## Contributing
+
+Report any bug by filing an issue.
+
+There's not much to be added client wise, as it is faithful to the public docs from QVO. Nevertheless, please file issues with the `enhancement` or `feature` tag for anything that's not included and you'd like to see implemented (stats, comparisons between customer, or any other thing you can think of).
+
+Of course, feel free to submit a PR for any of the above.
 
 ## License
 

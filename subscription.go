@@ -35,7 +35,8 @@ type Subscription struct {
 //customerID and planID are required.
 //cycleCount <= 0 will be omitted.
 //If taxName is "" or taxPercent isn´t in [0.0, 100.0], they'll be omitted.
-func CreateSubscription(c *Client, customerID, planID, start, taxName string, taxPercent float64, cycleCount int64) (Subscription, error) {
+//start is a pointer to a time.Time, so a nil pointer will be omitted.
+func CreateSubscription(c *Client, customerID, planID, taxName string, taxPercent float64, cycleCount int64, start *time.Time) (Subscription, error) {
 
 	var subscription Subscription
 
@@ -51,8 +52,8 @@ func CreateSubscription(c *Client, customerID, planID, start, taxName string, ta
 	form := url.Values{}
 	form.Add("customer_id", customerID)
 	form.Add("plan_id", planID)
-	if start != "" {
-		form.Add("start", start)
+	if start != nil {
+		form.Add("start", (*start).Format("2006-01-02T15:04:05.999Z"))
 	}
 	if cycleCount > 0 {
 		form.Add("cycle_count", strconv.FormatInt(cycleCount, 10))

@@ -1,6 +1,7 @@
 package qvo
 
 import (
+	"os"
 	"testing"
 
 	log "github.com/sirupsen/logrus"
@@ -10,9 +11,11 @@ import (
 func TestCustomer(t *testing.T) {
 	log.SetLevel(log.DebugLevel)
 	//Use test token and playground
-	token := "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjb21tZXJjZV9pZCI6ImNvbV9NeWxDWXg1YklUbkxaUjhTcmdFbzJ3IiwiYXBpX3Rva2VuIjp0cnVlfQ.IrqOpU5fw-TtZMrKg-JkXGL4KCll-ekvqcJL4LHep8w"
+	token := os.Getenv("QVO_TEST_TOKEN")
 	Convey("Given valid token a client should be created", t, func() {
 		c := NewClient(token, true)
+		//Set log level at debug.
+		c.SetLogLevel(log.DebugLevel)
 
 		Convey("After listing customers", func() {
 
@@ -28,7 +31,7 @@ func TestCustomer(t *testing.T) {
 					So(delErr, ShouldBeNil)
 				}
 
-				Convey("We should be able to create a couple of customers", func() {
+				Convey("We should be able to create a couple of customers and list the generated events", func() {
 
 					customer1, err := CreateCustomer(c, "Ignacio Gómez", "test@manglar.cl")
 					So(err, ShouldBeNil)
@@ -38,7 +41,11 @@ func TestCustomer(t *testing.T) {
 					So(err, ShouldBeNil)
 					So(customer2.Email, ShouldResemble, "test2@manglar.cl")
 
-					log.Debugf("\n\n***\n\ncreated at: %s\n\n***\n\n", customer1.CreatedAt.String())
+					events, err := ListEvents(c, 0, 0, make(map[string]map[string]interface{}), "created_at ASC")
+					So(err, ShouldBeNil)
+					So(len(events), ShouldBeGreaterThan, 0)
+
+					log.Debugf("events:\n%v", events)
 
 					Convey("So a customer should be retreivable and updatable", func() {
 						retrieved, err := GetCustomer(c, customer1.ID)
