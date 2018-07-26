@@ -13,12 +13,13 @@ import (
 
 //Status constants
 const (
-	Successful string = "successful"
-	Rejected   string = "rejected"
-	Unable     string = "unable_to_charge"
-	Refunded   string = "refunded"
-	Waiting    string = "waiting_for_response"
-	Timeout    string = "response?timeout"
+	Successful         string = "successful"
+	Rejected           string = "rejected"
+	Unable             string = "unable_to_charge"
+	Refunded           string = "refunded"
+	WaitingForResponse string = "waiting_for_response"
+	WaitingResponse    string = "waiting_response"
+	Timeout            string = "response?timeout"
 )
 
 //Gateway constants
